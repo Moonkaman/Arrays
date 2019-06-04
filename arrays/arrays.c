@@ -52,7 +52,7 @@ void resize_array(Array *arr)
 {
 
   // Create a new element storage with double capacity
-  char **newElements = malloc((arr->capacity * 2) * sizeof(char *));
+  char **newElements = malloc(arr->capacity * sizeof(char *) * 2);
   // Copy elements into the new storage
   for (int i = 0; i < arr->capacity; i++)
   {
@@ -104,7 +104,7 @@ void arr_insert(Array *arr, char *element, int index)
 {
 
   // Throw an error if the index is greater than the current count
-  if (index >= arr->count)
+  if (index > arr->count)
   {
     fprintf(stderr, "Index out of range\n");
   }
@@ -116,17 +116,12 @@ void arr_insert(Array *arr, char *element, int index)
       resize_array(arr);
     }
     // Move every element after the insert index to the right one position
-    char *lh;
-    char *rh = arr->elements[index];
-    arr->elements[index] = element;
-    for (int i = index + 1; i < arr->capacity; i++)
+    for (int i = arr->count; i > index; i--)
     {
-      lh = rh;
-      rh = arr->elements[i];
-      arr->elements[i] = lh;
+      arr->elements[i] = arr->elements[i - 1];
     }
     // Copy the element (hint: use `strdup()`) and add it to the array
-
+    arr->elements[index] = strdup(element);
     // Increment count by 1
     arr->count++;
   }
@@ -189,10 +184,10 @@ void arr_remove(Array *arr, char *element)
 
   if (index >= 0)
   {
-    // free(arr->elements[index]);
+    free(arr->elements[index]);
 
     // Shift over every element after the removed element to the left one position
-    for (int i = index; i < arr->count - 1; i++)
+    for (int i = index; i < arr->count; i++)
     {
       arr->elements[i] = arr->elements[i + 1];
     }
@@ -230,23 +225,13 @@ int main(void)
 
   Array *arr = create_array(1);
 
-  // arr_insert(arr, "STRING1", 0);
-  arr_append(arr, "STRING1");
-  arr_append(arr, "STRING2");
-  arr_append(arr, "STRING3");
+  arr_insert(arr, "STRING1", 0);
   arr_append(arr, "STRING4");
-  // arr_append(arr, "STRING5");
-  // arr_append(arr, "STRING6");
-  // arr_insert(arr, "STRING0", 1);
-  arr_remove(arr, "STRING2");
-  // arr_insert(arr, "STRING3", 1);
-  // arr_print(arr);
-  // arr_remove(arr, "STRING3");
-  // arr_print(arr);
-  for (int i = 0; i <= arr->capacity; i++)
-  {
-    printf("arr[%d] = %s\n", i, arr_read(arr, i));
-  }
+  arr_insert(arr, "STRING2", 0);
+  arr_insert(arr, "STRING3", 1);
+  arr_print(arr);
+  arr_remove(arr, "STRING3");
+  arr_print(arr);
 
   destroy_array(arr);
 
